@@ -4,13 +4,13 @@
 [![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/talos-incus)
 
 <!-- AI:start:what-it-does -->
-This project provides Talos Linux releases packaged specifically for use with Incus, enabling streamlined deployment and management in containerized environments. It addresses the need for compatibility and automation by offering workflows for building, deploying, and mirroring releases.
+This project provides Talos Linux releases packaged specifically for use with Incus, a container and virtual machine manager. It automates the process of building, deploying, and mirroring Talos Linux images to ensure compatibility and streamlined distribution for Incus users.
 <!-- AI:end:what-it-does -->
 
 ## Architecture
 
 <!-- AI:start:architecture -->
-The project packages Talos Linux releases for Incus and automates related workflows. It consists of JavaScript-based scripts and configuration files for managing builds, deployments, and mirroring operations. Key workflows include `build-multiple.yml` for building multiple releases, `deploy-worker.yml` for deploying the Cloudflare worker, and `mirror-osp-to-ooc.yaml` for syncing repositories. The `cloudflare-worker.js` file contains the worker logic, while `wrangler.toml.template` provides a template for configuring the Cloudflare Wrangler CLI. Supporting scripts are located in the `scripts` directory. GitHub Actions workflows are defined under `.github/workflows`.
+The project packages Talos Linux releases for use with Incus. It consists of a Cloudflare Worker (`cloudflare-worker.js`) that handles requests and interacts with storage backends. Configuration is managed via `wrangler.toml.template`, and helper scripts are located in the `scripts` directory. GitHub Actions workflows (`.github/workflows`) automate tasks such as building releases (`build-multiple.yml`), deploying the worker (`deploy-worker.yml`), and mirroring images (`mirror-osp-to-ooc.yaml`). The directory structure is as follows:
 
 ```plaintext
 .
@@ -76,7 +76,11 @@ resource "incus_instance" "talos_controller" {
 ## CI
 
 <!-- AI:start:ci -->
-_CI documentation pending._
+- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. Runs on push and pull request events. No secrets required.
+
+- **deploy-worker.yml**: Deploys the Cloudflare Worker defined in `cloudflare-worker.js` using Wrangler. Requires the `CF_API_TOKEN` secret for authentication.
+
+- **mirror-osp-to-ooc.yaml**: Mirrors Talos Linux releases from an external source to the repository. Runs on a schedule. Requires `GITHUB_TOKEN` for repository access.
 <!-- AI:end:ci -->
 
 ## Mirror chain
@@ -96,9 +100,11 @@ Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-
 ## Contributors
 
 <!-- AI:start:contributors -->
-[@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 19 commits  
-[@rmvangun](https://github.com/rmvangun): 13 commits  
-[@renovate[bot]](https://github.com/renovate[bot]): 10 commits  
+- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 22 commits  
+- [@rmvangun](https://github.com/rmvangun): 13 commits  
+- [@renovate[bot]](https://github.com/renovate[bot]): 10 commits  
+
+*Note: This repository is a mirror. Please refer to the upstream source for additional details.*
 <!-- AI:end:contributors -->
 
 ## Origins

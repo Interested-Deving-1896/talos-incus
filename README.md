@@ -122,5 +122,5 @@ _No additional resource files found._
 ## License
 
 <!-- AI:start:license -->
-[MPL-2.0](https://github.com/Interested-Deving-1896/talos-incus/blob/main/LICENSE) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
+<!-- License not detected — add a LICENSE file to this repo. -->
 <!-- AI:end:license -->

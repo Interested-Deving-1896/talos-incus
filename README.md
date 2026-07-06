@@ -4,27 +4,23 @@
 [![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/talos-incus)
 
 <!-- AI:start:what-it-does -->
-This project provides Talos Linux releases packaged specifically for use with Incus, a container and virtual machine manager. It automates the process of building, deploying, and mirroring Talos Linux images to ensure compatibility and streamlined distribution for Incus users.
+This project provides Talos Linux releases specifically packaged for use with Incus, a container and virtual machine manager. It automates workflows for building, deploying, and maintaining these releases, simplifying integration for developers and operators working with Talos Linux in Incus environments.
 <!-- AI:end:what-it-does -->
 
 ## Architecture
 
 <!-- AI:start:architecture -->
-The project packages Talos Linux releases for use with Incus. It consists of a Cloudflare Worker (`cloudflare-worker.js`) that handles requests and interacts with storage backends. Configuration is managed via `wrangler.toml.template`, and helper scripts are located in the `scripts` directory. GitHub Actions workflows (`.github/workflows`) automate tasks such as building releases (`build-multiple.yml`), deploying the worker (`deploy-worker.yml`), and mirroring images (`mirror-osp-to-ooc.yaml`). The directory structure is as follows:
+The project packages Talos Linux releases for Incus and automates related workflows. Key components include shell scripts for building and deploying releases, GitHub Actions workflows for CI/CD, and configuration files for managing Cloudflare Workers. The directory structure organizes scripts, templates, and metadata for streamlined automation. Workflows handle tasks such as multi-architecture builds (`build-multiple.yml`), deployment (`deploy-worker.yml`), repository mirroring (`mirror-osp-to-ooc.yaml`), and pull request updates (`rebase-prs.yml`).
 
 ```plaintext
 .
-├── .github/
-│   └── workflows/
-│       ├── build-multiple.yml
-│       ├── deploy-worker.yml
-│       └── mirror-osp-to-ooc.yaml
-├── .gitignore
-├── LICENSE
-├── README.md
-├── cloudflare-worker.js
-├── scripts/
-├── wrangler.toml.template
+├── .github/                 # GitHub Actions workflows
+├── .gitignore               # Git ignore rules
+├── LICENSE                  # Project license
+├── README.md                # Project documentation
+├── cloudflare-worker.js     # Cloudflare Worker script
+├── scripts/                 # Helper scripts for build and deployment
+├── wrangler.toml.template   # Template for Cloudflare Wrangler configuration
 ```
 <!-- AI:end:architecture -->
 
@@ -76,11 +72,10 @@ resource "incus_instance" "talos_controller" {
 ## CI
 
 <!-- AI:start:ci -->
-- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. Runs on push and pull request events. No secrets required.
-
-- **deploy-worker.yml**: Deploys the Cloudflare Worker defined in `cloudflare-worker.js` using Wrangler. Requires the `CF_API_TOKEN` secret for authentication.
-
-- **mirror-osp-to-ooc.yaml**: Mirrors Talos Linux releases from an external source to the repository. Runs on a schedule. Requires `GITHUB_TOKEN` for repository access.
+- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. No secrets required.  
+- **deploy-worker.yml**: Deploys the `cloudflare-worker.js` script using Wrangler. Requires `CF_API_TOKEN` and `CF_ACCOUNT_ID` secrets.  
+- **mirror-osp-to-ooc.yaml**: Syncs Talos Linux releases from an upstream source to an output channel. Requires `GITHUB_TOKEN` secret.  
+- **rebase-prs.yml**: Automatically rebases open pull requests on the default branch. Requires `GITHUB_TOKEN` secret.  
 <!-- AI:end:ci -->
 
 ## Mirror chain

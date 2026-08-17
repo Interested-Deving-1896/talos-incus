@@ -1,7 +1,8 @@
 [update-readmes]   Mode: rewrite — migrating to template structure...
 # talos-incus
 
-[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/talos-incus)
+[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/talos-incus) [![KDE Eco](https://img.shields.io/badge/KDE%20Eco-certified-brightgreen?logo=kde&logoColor=white&style=flat-square)](https://eco.kde.org/) [![Blue Angel](https://img.shields.io/badge/Blue%20Angel-DE--UZ%20215-0055a4?style=flat-square)](https://www.blauer-engel.de/en/certification/criteria) [![Energy](https://api.green-coding.io/v1/ci/badge/get?repo=Interested-Deving-1896%2Ftalos-incus&branch=main&workflow=eco-audit.yml)](https://metrics.green-coding.io/ci-index.html)
+
 
 <!-- AI:start:what-it-does -->
 This project provides Talos Linux releases specifically packaged for use with Incus, a container and virtual machine manager. It automates workflows for building, deploying, and maintaining these releases, simplifying integration for developers and operators working with Talos Linux in Incus environments.
@@ -72,10 +73,10 @@ resource "incus_instance" "talos_controller" {
 ## CI
 
 <!-- AI:start:ci -->
-- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. No secrets required.  
-- **deploy-worker.yml**: Deploys the `cloudflare-worker.js` script using Wrangler. Requires `CF_API_TOKEN` and `CF_ACCOUNT_ID` secrets.  
-- **mirror-osp-to-ooc.yaml**: Syncs Talos Linux releases from an upstream source to an output channel. Requires `GITHUB_TOKEN` secret.  
-- **rebase-prs.yml**: Automatically rebases open pull requests on the default branch. Requires `GITHUB_TOKEN` secret.  
+- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. No secrets required.
+- **deploy-worker.yml**: Deploys the `cloudflare-worker.js` script using Wrangler. Requires `CF_API_TOKEN` and `CF_ACCOUNT_ID` secrets.
+- **mirror-osp-to-ooc.yaml**: Syncs Talos Linux releases from an upstream source to an output channel. Requires `GITHUB_TOKEN` secret.
+- **rebase-prs.yml**: Automatically rebases open pull requests on the default branch. Requires `GITHUB_TOKEN` secret.
 <!-- AI:end:ci -->
 
 ## Mirror chain
@@ -95,9 +96,9 @@ Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-
 ## Contributors
 
 <!-- AI:start:contributors -->
-- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 36 commits  
-- [@rmvangun](https://github.com/rmvangun): 13 commits  
-- [@renovate[bot]](https://github.com/renovate[bot]): 10 commits  
+- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 36 commits
+- [@rmvangun](https://github.com/rmvangun): 13 commits
+- [@renovate[bot]](https://github.com/renovate[bot]): 10 commits
 
 *Note: This repository is a mirror. Please refer to the upstream source for additional contributions.*
 <!-- AI:end:contributors -->
@@ -113,6 +114,20 @@ _Original project — no upstream fork._
 <!-- AI:start:resources -->
 _No additional resource files found._
 <!-- AI:end:resources -->
+
+<!-- AI:start:accessibility -->
+This repo uses automated accessibility auditing via `check-accessibility.yml`.
+
+Checks include: CODEOWNERS ownership coverage, README screen-reader compatibility,
+WCAG 2.1 AA HTML compliance, audio overview (espeak-ng), and Braille output (liblouis).
+
+
+
+
+Run the [Check Accessibility](https://github.com/Interested-Deving-1896/talos-incus/actions/workflows/check-accessibility.yml)
+workflow to generate the first report and accessibility artifacts.
+See [DOCS/accessibility.md](https://github.com/Interested-Deving-1896/talos-incus/blob/main/DOCS/accessibility.md) for the full reference.
+<!-- AI:end:accessibility -->
 
 ## License
 

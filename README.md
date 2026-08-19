@@ -1,45 +1,29 @@
-[update-readmes]   Mode: rewrite — migrating to template structure...
-# talos-incus
+# Talos OS Images for Incus
 
-[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/talos-incus) [![KDE Eco](https://img.shields.io/badge/KDE%20Eco-certified-brightgreen?logo=kde&logoColor=white&style=flat-square)](https://eco.kde.org/) [![Blue Angel](https://img.shields.io/badge/Blue%20Angel-DE--UZ%20215-0055a4?style=flat-square)](https://www.blauer-engel.de/en/certification/criteria) [![Energy](https://api.green-coding.io/v1/ci/badge/get?repo=Interested-Deving-1896%2Ftalos-incus&branch=main&workflow=eco-audit.yml)](https://metrics.green-coding.io/ci-index.html)
+This repository automatically converts [Talos OS](https://www.talos.dev/) disk images into Incus-compatible virtual machine images. Talos is a minimal, immutable Linux distribution designed for Kubernetes, but its official releases don't include Incus/LXD-compatible formats.
 
+> **⚠️ Caution: Not an Authoritative Source**
+>
+> This image source is a community-driven project and is **not maintained or endorsed by SideroLabs or the Talos OS team**. Although we strive to provide accurate and timely images, **they are provided on a "best effort" basis and are not guaranteed for production use**.
+>
+> **Do NOT use these images in critical or production environments.** They are intended only for development, testing, or personal experimentation until an official simplestreams (or LXD/Incus) image source is made available by Talos OS or Incus.
+>
+> If and when an officially supported source for Incus images becomes available, you should migrate to that.
+>
+---
+## What This Repository Does
 
-<!-- AI:start:what-it-does -->
-This project provides Talos Linux releases specifically packaged for use with Incus, a container and virtual machine manager. It automates workflows for building, deploying, and maintaining these releases, simplifying integration for developers and operators working with Talos Linux in Incus environments.
-<!-- AI:end:what-it-does -->
+This repository sets up a simplestreams server that distributes Talos OS images for Incus. It automatically converts Talos releases into Incus-compatible VM images, signs them with cosign, and serves them via a Cloudflare Worker at `images.windsorcli.dev`.
 
-## Architecture
-
-<!-- AI:start:architecture -->
-The project packages Talos Linux releases for Incus and automates related workflows. Key components include shell scripts for building and deploying releases, GitHub Actions workflows for CI/CD, and configuration files for managing Cloudflare Workers. The directory structure organizes scripts, templates, and metadata for streamlined automation. Workflows handle tasks such as multi-architecture builds (`build-multiple.yml`), deployment (`deploy-worker.yml`), repository mirroring (`mirror-osp-to-ooc.yaml`), and pull request updates (`rebase-prs.yml`).
-
-```plaintext
-.
-├── .github/                 # GitHub Actions workflows
-├── .gitignore               # Git ignore rules
-├── LICENSE                  # Project license
-├── README.md                # Project documentation
-├── cloudflare-worker.js     # Cloudflare Worker script
-├── scripts/                 # Helper scripts for build and deployment
-├── wrangler.toml.template   # Template for Cloudflare Wrangler configuration
-```
-<!-- AI:end:architecture -->
-
-## Install
-
-<!-- Add installation instructions here. This section is yours — the AI will not modify it. -->
-
-```bash
-git clone https://github.com/Interested-Deving-1896/talos-incus.git
-cd talos-incus
-```
+> **Missing a version you need?**
+>
+> If there is a Talos OS version you want, but it isn't available through this repository or `images.windsorcli.dev`, please [file an issue](https://github.com/windsorcli/talos-incus/issues). Missing image versions can be built and published quickly upon request.
 
 ## Usage
 
-
 ```bash
 # Use simplestreams remote (recommended)
-incus remote add talos-incus https://images.interested-deving-1896.dev --protocol simplestreams
+incus remote add windsor https://images.windsorcli.dev --protocol simplestreams
 incus image list windsor:
 incus launch windsor:talos/v1.12.0/amd64 my-instance
 ```
@@ -50,8 +34,8 @@ If you are using the Incus Terraform provider, you can add remotes in the `provi
 # Configure Incus provider with remotes for image pulls
 provider "incus" {
   remote {
-    name     = "talos-incus"
-    address  = "https://images.interested-deving-1896.dev"
+    name     = "windsor"
+    address  = "https://images.windsorcli.dev"
     protocol = "simplestreams"
     public   = true
   }
@@ -61,76 +45,74 @@ resource "incus_instance" "talos_controller" {
   name        = "talos-controller"
   description = "Talos control plane node"
   type        = "virtual-machine"
-  image       = "talos-incus:talos/v1.12.0/arm64"
+  image       = "windsor:talos/v1.12.0/arm64"
   ...
 }
 ```
 
-## Configuration
+## How It Works
 
-<!-- Document configuration options here. This section is yours — the AI will not modify it. -->
+This repository automatically builds Incus images directly from [Talos OS releases](https://github.com/siderolabs/talos). When a new Talos version is released, Renovate automatically updates the version and triggers a build that:
 
-## CI
+- Downloads the official Talos disk images from `siderolabs/talos`
+- Converts them to split-format Incus images (metadata + disk files)
+- Signs all files with cosign (OIDC keyless)
+- Releases them here
 
-<!-- AI:start:ci -->
-- **build-multiple.yml**: Builds Talos Linux images for multiple architectures. No secrets required.
-- **deploy-worker.yml**: Deploys the `cloudflare-worker.js` script using Wrangler. Requires `CF_API_TOKEN` and `CF_ACCOUNT_ID` secrets.
-- **mirror-osp-to-ooc.yaml**: Syncs Talos Linux releases from an upstream source to an output channel. Requires `GITHUB_TOKEN` secret.
-- **rebase-prs.yml**: Automatically rebases open pull requests on the default branch. Requires `GITHUB_TOKEN` secret.
-<!-- AI:end:ci -->
+### Cloudflare Worker Proxy
 
-## Mirror chain
+Incus requires specific HTTP headers (`Incus-Image-Hash`, `Incus-Image-URL`) when importing images from URLs. Since GitHub Releases doesn't provide these headers, we use a Cloudflare Worker at `images.windsorcli.dev` that:
 
-<!-- AI:start:mirror-chain -->
-This repo is maintained in [`Interested-Deving-1896/talos-incus`](https://github.com/Interested-Deving-1896/talos-incus) and mirrored through:
+- Proxies requests to GitHub Releases
+- Looks up pre-calculated SHA256 hashes
+- Adds the required Incus headers
+- Enables direct URL imports without manual downloads
 
-```
-Interested-Deving-1896/talos-incus  ──►  OpenOS-Project-OSP/talos-incus  ──►  OpenOS-Project-Ecosystem-OOC/talos-incus
-```
+## Signing
 
-Changes flow downstream automatically via the hourly mirror chain in
-[`fork-sync-all`](https://github.com/Interested-Deving-1896/fork-sync-all).
-Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-Deving-1896`.
-<!-- AI:end:mirror-chain -->
+Releases are signed with [cosign](https://github.com/sigstore/cosign) using OIDC keyless signing. Signatures are created using the GitHub Actions workflow identity and stored in bundle format.
 
-## Contributors
+**Verify Signatures:**
 
-<!-- AI:start:contributors -->
-- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 36 commits
-- [@rmvangun](https://github.com/rmvangun): 13 commits
-- [@renovate[bot]](https://github.com/renovate[bot]): 10 commits
+1. Install cosign:
+   ```bash
+   # macOS
+   brew install cosign
+   
+   # Linux
+   wget -O cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+   chmod +x cosign
+   sudo mv cosign /usr/local/bin/
+   ```
 
-*Note: This repository is a mirror. Please refer to the upstream source for additional contributions.*
-<!-- AI:end:contributors -->
+2. Download the artifact and bundle file from the release
 
-## Origins
+3. Verify metadata files:
+   ```bash
+   cosign verify-blob \
+     --bundle talos-amd64-incus.tar.xz.bundle \
+     --certificate-identity-regexp '^https://github.com/windsorcli/talos-incus' \
+     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+     talos-amd64-incus.tar.xz
+   
+   cosign verify-blob \
+     --bundle talos-arm64-incus.tar.xz.bundle \
+     --certificate-identity-regexp '^https://github.com/windsorcli/talos-incus' \
+     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+     talos-arm64-incus.tar.xz
+   ```
 
-<!-- AI:start:origins -->
-_Original project — no upstream influences recorded._
-<!-- AI:end:origins -->
-
-## Resources
-
-<!-- AI:start:resources -->
-_No additional resource files found._
-<!-- AI:end:resources -->
-
-<!-- AI:start:accessibility -->
-This repo uses automated accessibility auditing via `check-accessibility.yml`.
-
-Checks include: CODEOWNERS ownership coverage, README screen-reader compatibility,
-WCAG 2.1 AA HTML compliance, audio overview (espeak-ng), and Braille output (liblouis).
-
-
-
-
-Run the [Check Accessibility](https://github.com/Interested-Deving-1896/talos-incus/actions/workflows/check-accessibility.yml)
-workflow to generate the first report and accessibility artifacts.
-See [DOCS/accessibility.md](https://github.com/Interested-Deving-1896/talos-incus/blob/main/DOCS/accessibility.md) for the full reference.
-<!-- AI:end:accessibility -->
-
-## License
-
-<!-- AI:start:license -->
-[MPL-2.0](https://github.com/Interested-Deving-1896/talos-incus/blob/main/LICENSE) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
-<!-- AI:end:license -->
+4. Verify disk files:
+   ```bash
+   cosign verify-blob \
+     --bundle talos-amd64.qcow2.bundle \
+     --certificate-identity-regexp '^https://github.com/windsorcli/talos-incus' \
+     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+     talos-amd64.qcow2
+   
+   cosign verify-blob \
+     --bundle talos-arm64.qcow2.bundle \
+     --certificate-identity-regexp '^https://github.com/windsorcli/talos-incus' \
+     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+     talos-arm64.qcow2
+   ```
